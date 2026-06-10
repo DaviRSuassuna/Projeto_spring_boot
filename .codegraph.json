@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "generated_at": "2026-06-10T00:00:00Z",
+    "project_root": "/home/davi/Arquivos/Senac/Web/projeto",
+    "languages": ["java"],
+    "total_files": 2,
+    "total_lines": 27,
+    "skipped_files": [
+      {"path": "src/test/java/com/senac/projeto/ProjetoApplicationTests.java", "reason": "test file"}
+    ],
+    "warnings": [],
+    "version": "1.0"
+  },
+  "nodes": [
+    {
+      "path": "src/main/java/com/senac/projeto/ProjetoApplication.java",
+      "language": "java",
+      "size_lines": 13,
+      "exports": ["ProjetoApplication"],
+      "imports": [],
+      "calls": [],
+      "classes": ["ProjetoApplication"],
+      "functions": ["main"],
+      "description": "Spring Boot application entry point"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/HomeController.java",
+      "language": "java",
+      "size_lines": 14,
+      "exports": ["HomeController"],
+      "imports": [],
+      "calls": [],
+      "classes": ["HomeController"],
+      "functions": ["home"],
+      "description": "REST controller exposing GET / endpoint"
+    }
+  ],
+  "edges": [],
+  "summary": {
+    "entry_points": ["src/main/java/com/senac/projeto/ProjetoApplication.java"],
+    "hubs": [],
+    "clusters": {
+      "main": {
+        "dirs": ["src/main/java/com/senac/projeto"],
+        "files": 2,
+        "purpose": "Spring Boot REST API application"
+      }
+    }
+  }
+}
