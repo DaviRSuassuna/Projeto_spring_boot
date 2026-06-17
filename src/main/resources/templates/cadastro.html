@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Lanchonete</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="login-fundo">
+    <div class="login-card" style="max-width: 400px;">
+        <div class="login-titulo">Criar Conta</div>
+        <div class="login-subtitulo">Preencha os dados abaixo</div>
+
+        <div th:if="${erro}" class="alerta alerta-erro" th:text="${erro}"></div>
+        <div th:if="${sucesso}" class="alerta alerta-ok" th:text="${sucesso}"></div>
+
+        <form method="post" th:action="@{/cadastro}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="campo-grupo">
+                <label for="nome">Nome Completo</label>
+                <input id="nome" name="nome" type="text" class="campo" placeholder="Seu nome" required>
+            </div>
+            <div class="campo-grupo">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" class="campo" placeholder="seu@email.com" required>
+            </div>
+            <div class="campo-grupo">
+                <label for="senha">Senha</label>
+                <input id="senha" name="senha" type="password" class="campo" placeholder="••••••••" required>
+            </div>
+            <div class="campo-grupo">
+                <label for="confirmarSenha">Confirmar Senha</label>
+                <input id="confirmarSenha" name="confirmarSenha" type="password" class="campo" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="botao" style="margin-top: 8px;">Cadastrar</button>
+        </form>
+
+        <p style="margin-top: 14px; font-size: 12px; text-align: center; color: #9E9E9E;">
+            Já tem conta? <a class="link" th:href="@{/login}">Fazer login</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

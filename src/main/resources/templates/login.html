@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Lanchonete</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="login-fundo">
+    <div class="login-card">
+        <div class="login-titulo">Lanchonete</div>
+        <div class="login-subtitulo">Faça login para continuar</div>
+
+        <div th:if="${erro}" class="alerta alerta-erro" th:text="${erro}"></div>
+
+        <form method="post" th:action="@{/login}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="campo-grupo">
+                <label for="username">E-mail</label>
+                <input id="username" name="username" type="email" class="campo" placeholder="seu@email.com" required>
+            </div>
+            <div class="campo-grupo">
+                <label for="password">Senha</label>
+                <input id="password" name="password" type="password" class="campo" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="botao" style="margin-top: 8px;">Entrar</button>
+        </form>
+
+        <p style="margin-top: 14px; font-size: 12px; text-align: center; color: #9E9E9E;">
+            Não tem conta? <a class="link" th:href="@{/cadastro}">Cadastre-se</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

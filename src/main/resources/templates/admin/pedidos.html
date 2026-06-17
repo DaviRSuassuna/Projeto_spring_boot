@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedidos - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <nav class="sidebar">
+        <div class="sidebar-logo">🍔 Lanchonete</div>
+        <a th:href="@{/admin/produtos}" class="sidebar-btn">Produtos</a>
+        <a th:href="@{/admin/categorias}" class="sidebar-btn">Categorias</a>
+        <a th:href="@{/admin/usuarios}" class="sidebar-btn">Usuários</a>
+        <a th:href="@{/admin/pedidos}" class="sidebar-btn ativo">Pedidos</a>
+        <form method="post" th:action="@{/sair}" style="margin-top: auto;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="sidebar-btn-sair">Sair</button>
+        </form>
+    </nav>
+
+    <main class="painel">
+        <div class="titulo">Pedidos</div>
+
+        <div th:if="${sucesso}" class="alerta alerta-ok" th:text="${sucesso}"></div>
+        <div th:if="${erro}" class="alerta alerta-erro" th:text="${erro}"></div>
+
+        <div class="tabela-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Pagamento</th>
+                        <th>Itens</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${pedidos}">
+                        <td th:text="${p.id}"></td>
+                        <td th:text="${p.usuario.nome}"></td>
+                        <td th:text="|R$ ${#numbers.formatDecimal(p.total, 1, 'COMMA', 2, 'POINT')}|"></td>
+                        <td th:text="${p.modoPagamento.descricao}"></td>
+                        <td>
+                            <ul style="margin: 0; padding-left: 16px; font-size: 12px;">
+                                <li th:each="item : ${p.itens}"
+                                    th:text="|${item.produto.nome} x${item.quantidade} = R$ ${#numbers.formatDecimal(item.preco, 1, 'COMMA', 2, 'POINT')}|">
+                                </li>
+                            </ul>
+                        </td>
+                        <td th:text="${#temporals.format(p.atualizadoEm, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <form method="post" th:action="@{/admin/pedidos/excluir}"
+                                  onsubmit="return confirm('Excluir este pedido?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <input type="hidden" name="id" th:value="${p.id}">
+                                <button type="submit" class="botao-excluir">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pedidos)}">
+                        <td colspan="7" style="text-align: center; color: #9E9E9E; padding: 20px;">Nenhum pedido encontrado.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,539 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #FFF8F5;
+    color: #212121;
+}
+
+/* ── Login ────────────────────────────────────── */
+
+.login-fundo {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FFF8F5;
+}
+
+.login-card {
+    background: white;
+    padding: 40px 45px 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    width: 100%;
+    max-width: 360px;
+}
+
+.login-titulo {
+    font-size: 26px;
+    font-weight: bold;
+    color: #BF360C;
+    margin-bottom: 4px;
+}
+
+.login-subtitulo {
+    font-size: 13px;
+    color: #9E9E9E;
+    margin-bottom: 20px;
+}
+
+/* ── Campos ───────────────────────────────────── */
+
+.campo-grupo {
+    margin-bottom: 14px;
+}
+
+.campo-grupo label {
+    display: block;
+    font-size: 13px;
+    color: #424242;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.campo {
+    width: 100%;
+    height: 38px;
+    font-size: 13px;
+    background-color: white;
+    border: 1px solid #FFCCBC;
+    border-radius: 6px;
+    padding: 0 10px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.campo:focus {
+    border-color: #E65100;
+}
+
+select.campo {
+    cursor: pointer;
+}
+
+/* ── Botões ───────────────────────────────────── */
+
+.botao {
+    display: block;
+    width: 100%;
+    height: 40px;
+    background-color: #E65100;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    text-align: center;
+    line-height: 40px;
+}
+
+.botao:hover {
+    background-color: #BF360C;
+}
+
+.botao-adicionar {
+    background-color: #2E7D32;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    height: 36px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.botao-adicionar:hover { background-color: #1B5E20; }
+
+.botao-atualizar {
+    background-color: #1565C0;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    height: 36px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.botao-atualizar:hover { background-color: #0D47A1; }
+
+.botao-excluir {
+    background-color: #C62828;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    height: 36px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.botao-excluir:hover { background-color: #B71C1C; }
+
+.botao-secundario {
+    background-color: #ECEFF1;
+    color: #424242;
+    font-size: 13px;
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.botao-secundario:hover { background-color: #CFD8DC; }
+
+/* ── Link ─────────────────────────────────────── */
+
+.link {
+    color: #E65100;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* ── Mensagens ────────────────────────────────── */
+
+.mensagem-erro {
+    color: #C62828;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.mensagem-ok {
+    color: #2E7D32;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.alerta {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.alerta-erro { background: #FFEBEE; color: #C62828; border-left: 4px solid #C62828; }
+.alerta-ok   { background: #E8F5E9; color: #2E7D32; border-left: 4px solid #2E7D32; }
+
+/* ── Layout Admin (sidebar + conteúdo) ───────── */
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    background-color: #BF360C;
+    padding: 20px 15px;
+    min-width: 200px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-logo {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 0 0 20px 5px;
+}
+
+.sidebar-btn {
+    display: block;
+    background: transparent;
+    color: #FFCCBC;
+    font-size: 13px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+    width: 100%;
+}
+
+.sidebar-btn:hover, .sidebar-btn.ativo {
+    background-color: #E64A19;
+    color: white;
+}
+
+.sidebar-btn-sair {
+    display: block;
+    background: rgba(0,0,0,0.2);
+    color: #FFCCBC;
+    font-size: 13px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    text-align: left;
+    text-decoration: none;
+    margin-top: auto;
+    width: 100%;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-btn-sair:hover {
+    background: rgba(0,0,0,0.35);
+    color: white;
+}
+
+.painel {
+    flex: 1;
+    padding: 25px;
+    background-color: #FFF8F5;
+}
+
+.titulo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #BF360C;
+    margin-bottom: 16px;
+}
+
+/* ── Formulário inline ────────────────────────── */
+
+.form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-end;
+    background: white;
+    border: 1px solid #FFCCBC;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.form-inline .campo-grupo {
+    margin-bottom: 0;
+    min-width: 140px;
+}
+
+.form-inline .campo {
+    min-width: 140px;
+}
+
+/* ── Tabela ───────────────────────────────────── */
+
+.tabela-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #FFCCBC;
+}
+
+thead tr {
+    background-color: #E65100;
+}
+
+thead th {
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 12px 14px;
+    text-align: left;
+}
+
+tbody tr {
+    border-bottom: 1px solid #FFF3EE;
+    transition: background-color 0.15s;
+}
+
+tbody tr:hover {
+    background-color: #FFF3EE;
+}
+
+tbody td {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #212121;
+}
+
+tbody td form {
+    display: inline;
+}
+
+/* ── Header Cliente ───────────────────────────── */
+
+.header {
+    background-color: #E65100;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-titulo {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.header-usuario {
+    color: #FFCCBC;
+    font-size: 12px;
+}
+
+.header-sair {
+    background: rgba(0,0,0,0.2);
+    color: white;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.header-sair:hover { background: rgba(0,0,0,0.35); }
+
+/* ── Cliente layout ───────────────────────────── */
+
+.cliente-layout {
+    display: flex;
+    height: calc(100vh - 52px);
+}
+
+.catalogo {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.categoria-titulo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #BF360C;
+    padding: 6px 0 2px 0;
+    border-bottom: 2px solid #FFCCBC;
+    margin-bottom: 12px;
+    margin-top: 20px;
+}
+
+.categoria-titulo:first-child { margin-top: 0; }
+
+.produtos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+/* ── Card Produto ─────────────────────────────── */
+
+.card-produto {
+    background: white;
+    border: 1px solid #FFE0D0;
+    border-radius: 8px;
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    width: 180px;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s;
+}
+
+.card-produto:hover { border-color: #E65100; }
+
+.card-nome {
+    font-size: 14px;
+    font-weight: bold;
+    color: #212121;
+}
+
+.card-preco {
+    font-size: 16px;
+    font-weight: bold;
+    color: #E65100;
+}
+
+.card-qtd {
+    font-size: 11px;
+    color: #9E9E9E;
+}
+
+.card-qtd-indisponivel {
+    font-size: 11px;
+    font-weight: bold;
+    color: #C62828;
+}
+
+.btn-add {
+    margin-top: auto;
+    background-color: #E65100;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+.btn-add:hover { background-color: #BF360C; }
+.btn-add:disabled { background-color: #BDBDBD; cursor: not-allowed; }
+
+/* ── Carrinho ─────────────────────────────────── */
+
+.carrinho-painel {
+    background: white;
+    border-left: 1px solid #FFCCBC;
+    padding: 20px;
+    width: 280px;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+.carrinho-titulo {
+    font-size: 16px;
+    font-weight: bold;
+    color: #BF360C;
+}
+
+#lista-carrinho {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.carrinho-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #424242;
+    padding: 5px 0;
+    border-bottom: 1px solid #FFF3EE;
+}
+
+.carrinho-item .btn-remover {
+    background: none;
+    border: none;
+    color: #C62828;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0 4px;
+}
+
+.total-label {
+    font-size: 15px;
+    font-weight: bold;
+    color: #212121;
+    border-top: 1px solid #FFCCBC;
+    padding-top: 10px;
+}
+
+.check-admin {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #424242;
+    cursor: pointer;
+}

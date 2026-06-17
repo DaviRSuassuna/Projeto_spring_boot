@@ -1,14 +1,113 @@
-# Projeto Spring Boot
+# Lanchonete — Sistema Web
 
-API REST desenvolvida com Spring Boot, organizada seguindo os princípios da **Arquitetura Limpa (Clean Architecture)** e **Arquitetura de Cebola (Onion Architecture)**.
+Aplicação web de lanchonete desenvolvida com **Spring Boot**, **Thymeleaf** e **Spring Security**, organizada seguindo os princípios da **Arquitetura Limpa (Clean Architecture)** e **Arquitetura de Cebola (Onion Architecture)**.
+
+## Tecnologias
+
+| Tecnologia | Versão |
+|---|---|
+| Java | 25 |
+| Spring Boot | 4.0.6 |
+| Spring Security | (via Spring Boot) |
+| Thymeleaf | (via Spring Boot) |
+| Spring Data JPA / Hibernate | (via Spring Boot) |
+| MySQL | 8.4 |
+| Lombok | — |
+| Maven | (wrapper incluso) |
+
+---
+
+## Pré-requisitos
+
+- **Java 25+** instalado
+- **Docker** e **Docker Compose** instalados (para o banco de dados)
+
+---
+
+## Como iniciar
+
+### 1. Subir o banco de dados (MySQL via Docker)
+
+```bash
+docker compose up -d
+```
+
+Isso cria um container MySQL com:
+- Banco: `lanchonete_db`
+- Usuário: `user` / Senha: `senhauser`
+- Porta: `3306`
+
+Aguarde o container ficar saudável antes de iniciar a aplicação:
+
+```bash
+docker compose ps
+```
+
+### 2. Iniciar a aplicação
+
+**Linux/macOS:**
+```bash
+./mvnw spring-boot:run
+```
+
+**Windows:**
+```cmd
+mvnw.cmd spring-boot:run
+```
+
+A aplicação sobe em: **http://localhost:8080**
+
+---
+
+## Credenciais padrão
+
+Na primeira execução o sistema cria automaticamente os seguintes usuários:
+
+| Tipo | E-mail | Senha | Acesso |
+|---|---|---|---|
+| Administrador | `admin@lanchonete.com` | `admin123` | `/admin/**` |
+| Cliente | `cliente@lanchonete.com` | `cliente123` | `/cliente/**` |
+
+Além disso, o banco é populado com categorias e produtos de exemplo (lanches, bebidas, porções e sobremesas).
+
+---
+
+## Rotas principais
+
+| Rota | Acesso | Descrição |
+|---|---|---|
+| `/login` | Público | Tela de login |
+| `/cadastro` | Público | Cadastro de novo cliente |
+| `/admin/produtos` | ADMIN | Gestão de produtos |
+| `/admin/**` | ADMIN | Área administrativa |
+| `/cliente` | USER | Área do cliente / cardápio |
+| `/sair` | Autenticado | Logout |
+
+---
+
+## Parando a aplicação
+
+Para parar o container do banco:
+
+```bash
+docker compose down
+```
+
+Para remover também os dados persistidos:
+
+```bash
+docker compose down -v
+```
+
+---
 
 ## Arquitetura
 
-O projeto adota uma estrutura em camadas concêntricas, onde **as dependências sempre apontam para dentro** — camadas externas conhecem as internas, mas nunca o contrário. Isso garante que as regras de negócio sejam independentes de frameworks, banco de dados ou qualquer detalhe de infraestrutura.
+O projeto adota uma estrutura em camadas concêntricas onde **as dependências sempre apontam para dentro** — camadas externas conhecem as internas, mas nunca o contrário.
 
 ```
 ┌─────────────────────────────────────┐
-│         interfaces (REST)           │  ← camada mais externa
+│         interfaces (Web/REST)       │  ← camada mais externa
 │  ┌───────────────────────────────┐  │
 │  │       infrastructure          │  │
 │  │  ┌─────────────────────────┐  │  │
@@ -21,51 +120,32 @@ O projeto adota uma estrutura em camadas concêntricas, onde **as dependências 
 └─────────────────────────────────────┘
 ```
 
-## Estrutura de Pacotes
+### Estrutura de pacotes
 
 ```
 src/main/java/com/senac/projeto/
 ├── domain/
-│   ├── model/           # Entidades da aplicação (Java puro, sem anotações de framework)
-│   └── repository/      # Interfaces dos repositórios (contratos, sem implementação)
+│   ├── model/           # Entidades (Usuario, Produto, Pedido, Categoria, ItemPedido, ModoPagamento)
+│   └── repository/      # Interfaces dos repositórios (contratos)
 │
 ├── application/
-│   └── usecase/         # Casos de uso — regras e fluxos da aplicação
+│   └── usecase/         # Casos de uso (UsuarioService, ProdutoService, PedidoService, CategoriaService)
 │
 ├── infrastructure/
-│   ├── persistence/     # Implementações dos repositórios (JPA/banco de dados)
-│   └── config/          # Configurações e beans do Spring
+│   ├── persistence/     # DataSeeder (carga inicial de dados)
+│   └── config/          # SecurityConfig (autenticação e autorização)
 │
 └── interfaces/
-    └── rest/            # Controllers HTTP — entrada e saída da API
+    ├── rest/            # HomeController
+    └── web/             # Controllers Thymeleaf (Auth, Cliente, Admin, Produtos, Pedidos, Categorias)
 ```
 
-## Responsabilidade de cada camada
-
-### `domain`
-Núcleo da aplicação. Contém as entidades e as interfaces dos repositórios. **Não depende de nada** — nem do Spring, nem do banco de dados. É a camada mais estável e protegida.
-
-### `application`
-Orquestra os casos de uso utilizando as entidades e repositórios do domínio. Contém a lógica de negócio da aplicação (ex: criar um usuário, processar um pedido). Depende apenas do `domain`.
-
-### `infrastructure`
-Implementa os detalhes técnicos: acesso ao banco de dados (JPA), integrações externas e configurações do Spring. Depende do `domain` e do `application`.
-
-### `interfaces`
-Ponto de entrada da aplicação. Os controllers recebem as requisições HTTP, delegam para os casos de uso e retornam as respostas. Depende do `application`.
-
-## Fluxo de uma funcionalidade
+### Fluxo de uma requisição
 
 ```
 Request HTTP
-    └─► interfaces/rest       (Controller recebe a requisição)
+    └─► interfaces/web       (Controller recebe a requisição)
             └─► application/usecase   (Caso de uso executa a lógica)
                     └─► domain/repository     (Interface do repositório)
-                                └─► infrastructure/persistence  (Implementação acessa o banco)
+                                └─► infrastructure/persistence  (JPA acessa o banco)
 ```
-
-## Tecnologias
-
-- Java
-- Spring Boot
-- Maven

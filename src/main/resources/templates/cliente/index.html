@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Lanchonete</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="header">
+    <span class="header-titulo">🍔 Lanchonete</span>
+    <div class="header-right">
+        <span class="header-usuario" th:text="'Olá, ' + ${nomeUsuario}"></span>
+        <form method="post" th:action="@{/sair}" style="display:inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="header-sair">Sair</button>
+        </form>
+    </div>
+</header>
+
+<div class="cliente-layout">
+
+    <!-- Catálogo de Produtos -->
+    <div class="catalogo">
+        <div th:if="${sucesso}" class="alerta alerta-ok" th:text="${sucesso}" style="margin-bottom: 12px;"></div>
+        <div th:if="${erro}" class="alerta alerta-erro" th:text="${erro}" style="margin-bottom: 12px;"></div>
+
+        <div th:each="entrada : ${produtosPorCategoria}">
+            <div class="categoria-titulo" th:text="${entrada.key}"></div>
+            <div class="produtos-grid">
+                <div class="card-produto" th:each="p : ${entrada.value}">
+                    <div class="card-nome" th:text="${p.nome}"></div>
+                    <div class="card-preco" th:text="|R$ ${#numbers.formatDecimal(p.preco, 1, 'COMMA', 2, 'POINT')}|"></div>
+                    <div th:if="${p.quantidade > 0}" class="card-qtd" th:text="|Estoque: ${p.quantidade}|"></div>
+                    <div th:if="${p.quantidade == 0}" class="card-qtd-indisponivel">Indisponível</div>
+                    <button class="btn-add"
+                            th:disabled="${p.quantidade == 0}"
+                            th:data-id="${p.id}"
+                            th:data-nome="${p.nome}"
+                            th:data-preco="${p.preco}"
+                            th:data-estoque="${p.quantidade}"
+                            onclick="adicionarAoCarrinhoBtn(this)">
+                        + Adicionar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrinho -->
+    <aside class="carrinho-painel">
+        <div class="carrinho-titulo">Carrinho</div>
+
+        <div id="lista-carrinho">
+            <p style="font-size: 12px; color: #9E9E9E;">Carrinho vazio</p>
+        </div>
+
+        <div class="total-label" id="total-label">Total: R$ 0,00</div>
+
+        <div class="campo-grupo">
+            <label>Forma de Pagamento</label>
+            <select id="modoPagamento" class="campo">
+                <option value="">Selecione...</option>
+                <option th:each="mp : ${modosPagamento}" th:value="${mp.name()}" th:text="${mp.descricao}"></option>
+            </select>
+        </div>
+
+        <form id="form-pedido" method="post" th:action="@{/cliente/pedido}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" id="modo-pagamento-input" name="modoPagamento">
+            <div id="itens-form"></div>
+            <button type="button" onclick="confirmarPedido()" class="botao" style="margin-bottom: 6px;">
+                Confirmar Pedido
+            </button>
+        </form>
+
+        <button type="button" onclick="limparCarrinho()" class="botao-secundario" style="width: 100%; justify-content: center;">
+            Limpar
+        </button>
+    </aside>
+</div>
+
+<script>
+    const carrinho = {};
+
+    function adicionarAoCarrinhoBtn(btn) {
+        const id = btn.dataset.id;
+        const nome = btn.dataset.nome;
+        const preco = parseFloat(btn.dataset.preco);
+        const estoque = parseInt(btn.dataset.estoque);
+        const qtdNoCarrinho = carrinho[id] ? carrinho[id].quantidade : 0;
+
+        if (qtdNoCarrinho >= estoque) {
+            alert('Quantidade máxima disponível já adicionada.');
+            return;
+        }
+
+        if (carrinho[id]) {
+            carrinho[id].quantidade++;
+        } else {
+            carrinho[id] = { id, nome, preco, quantidade: 1, estoque };
+        }
+
+        renderCarrinho();
+    }
+
+    function removerDoCarrinho(id) {
+        delete carrinho[String(id)];
+        renderCarrinho();
+    }
+
+    function renderCarrinho() {
+        const lista = document.getElementById('lista-carrinho');
+        const itensForm = document.getElementById('itens-form');
+        const totalLabel = document.getElementById('total-label');
+
+        const items = Object.values(carrinho);
+
+        if (items.length === 0) {
+            lista.innerHTML = '<p style="font-size:12px;color:#9E9E9E;">Carrinho vazio</p>';
+            totalLabel.textContent = 'Total: R$ 0,00';
+            itensForm.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        let formHtml = '';
+        let total = 0;
+
+        items.forEach(item => {
+            const subtotal = item.preco * item.quantidade;
+            total += subtotal;
+            html += `
+                <div class="carrinho-item">
+                    <div>
+                        <div style="font-weight:bold;">${item.nome}</div>
+                        <div>x${item.quantidade} = R$ ${subtotal.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    <button class="btn-remover" onclick="removerDoCarrinho(${item.id})">✕</button>
+                </div>
+            `;
+            formHtml += `<input type="hidden" name="qtd_${item.id}" value="${item.quantidade}">`;
+        });
+
+        lista.innerHTML = html;
+        itensForm.innerHTML = formHtml;
+        totalLabel.textContent = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function limparCarrinho() {
+        for (const key in carrinho) delete carrinho[key];
+        renderCarrinho();
+    }
+
+    function confirmarPedido() {
+        if (Object.keys(carrinho).length === 0) {
+            alert('Adicione ao menos um produto ao carrinho.');
+            return;
+        }
+        const modo = document.getElementById('modoPagamento').value;
+        if (!modo) {
+            alert('Selecione a forma de pagamento.');
+            return;
+        }
+        document.getElementById('modo-pagamento-input').value = modo;
+        document.getElementById('form-pedido').submit();
+    }
+</script>
+</body>
+</html>
