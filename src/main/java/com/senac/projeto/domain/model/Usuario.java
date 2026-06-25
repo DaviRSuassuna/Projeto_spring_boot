@@ -5,6 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Entidade de dominio que representa um usuario do sistema.
+ *
+ * <p>Mapeada para a tabela {@code usuario}. O e-mail e unico e utilizado como
+ * identificador de autenticacao. Usuarios podem ser clientes comuns ({@code admin=false})
+ * ou administradores ({@code admin=true}). Contas desativadas ({@code ativo=false})
+ * nao conseguem efetuar login.</p>
+ */
 @Entity
 @Table(name = "usuario")
 @Data
@@ -21,6 +29,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
+    /** Senha armazenada como hash BCrypt. */
     @Column(nullable = false)
     private String senha;
 

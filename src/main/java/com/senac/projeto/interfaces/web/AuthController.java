@@ -7,6 +7,7 @@ import com.senac.projeto.infrastructure.security.LoginRateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Controlador responsavel pelos fluxos de autenticacao e cadastro de usuarios.
+ *
+ * <p>Apos autenticacao bem-sucedida, emite um cookie JWT HttpOnly com atributo
+ * {@code SameSite=Strict} e redireciona o usuario conforme sua role:
+ * administradores vao para {@code /admin/produtos} e clientes para {@code /cliente}.</p>
+ */
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
@@ -25,9 +33,17 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final LoginRateLimiter rateLimiter;
 
-    @org.springframework.beans.factory.annotation.Value("${app.cookie.secure}")
+    @Value("${app.cookie.secure}")
     private boolean cookieSecure;
 
+    /**
+     * Exibe a pagina de login.
+     *
+     * @param erro           presente na query string quando ha credenciais invalidas
+     * @param contaDesativada presente na query string quando o usuario acabou de desativar a conta
+     * @param model          modelo Thymeleaf
+     * @return nome da view {@code login}
+     */
     @GetMapping("/login")
     public String login(
             @RequestParam(required = false) String erro,
@@ -38,6 +54,19 @@ public class AuthController {
         return "login";
     }
 
+    /**
+     * Processa o formulario de login.
+     *
+     * <p>Verifica bloqueio por rate limiting, valida credenciais, checa se a conta
+     * esta ativa e, em caso de sucesso, emite o cookie JWT e redireciona o usuario.</p>
+     *
+     * @param email    e-mail informado no formulario
+     * @param senha    senha informada no formulario
+     * @param request  requisicao HTTP, usada para extrair o IP do cliente
+     * @param response resposta HTTP, usada para adicionar o cookie JWT
+     * @param model    modelo Thymeleaf para mensagens de erro
+     * @return redirecionamento para a area do usuario ou retorno a view {@code login} com erro
+     */
     @PostMapping("/login")
     public String processarLogin(
             @RequestParam String email,
@@ -84,11 +113,29 @@ public class AuthController {
         return usuario.isAdmin() ? "redirect:/admin/produtos" : "redirect:/cliente";
     }
 
+    /**
+     * Exibe o formulario de cadastro de novo usuario.
+     *
+     * @return nome da view {@code cadastro}
+     */
     @GetMapping("/cadastro")
     public String cadastroForm() {
         return "cadastro";
     }
 
+    /**
+     * Processa o formulario de cadastro de novo usuario.
+     *
+     * <p>Valida tamanho minimo de senha, confirmacao de senha e unicidade do e-mail
+     * antes de criar o usuario. Novos cadastros sao sempre clientes ({@code admin=false}).</p>
+     *
+     * @param nome           nome completo do usuario
+     * @param email          e-mail que sera usado como login
+     * @param senha          senha desejada (minimo 8 caracteres)
+     * @param confirmarSenha confirmacao da senha
+     * @param model          modelo Thymeleaf para mensagens de erro ou sucesso
+     * @return view {@code cadastro} com mensagem de resultado
+     */
     @PostMapping("/cadastro")
     public String cadastro(
             @RequestParam String nome,
@@ -123,6 +170,16 @@ public class AuthController {
         return "cadastro";
     }
 
+    /**
+     * Determina o IP real do cliente, considerando possiveis proxies reversos.
+     *
+     * <p>Utiliza o cabecalho {@code X-Forwarded-For} quando presente, tomando apenas
+     * o primeiro endereco da lista (o cliente original). Caso ausente, usa o IP direto
+     * da conexao TCP.</p>
+     *
+     * @param request requisicao HTTP
+     * @return endereco IP do cliente
+     */
     private String obterIp(HttpServletRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isBlank()) {

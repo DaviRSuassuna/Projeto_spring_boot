@@ -17,6 +17,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Filtro de autenticacao JWT executado uma unica vez por requisicao.
+ *
+ * <p>Extrai o token do cookie {@code jwt}, valida a assinatura e expiracao,
+ * e popula o {@link SecurityContextHolder} com as credenciais do usuario
+ * (email como principal e role como authority). Requisicoes sem cookie valido
+ * passam pelo filtro sem autenticacao, sendo bloqueadas posteriormente pelas
+ * regras de autorizacao definidas em {@link SecurityConfig}.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -43,6 +52,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Extrai o valor do cookie {@code jwt} da requisicao.
+     *
+     * @param request requisicao HTTP recebida
+     * @return {@link Optional} com o token JWT, ou vazio se o cookie nao existir
+     */
     private Optional<String> extrairTokenDoCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return Optional.empty();
         return Arrays.stream(request.getCookies())

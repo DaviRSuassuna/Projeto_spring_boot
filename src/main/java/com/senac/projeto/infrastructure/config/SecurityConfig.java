@@ -11,6 +11,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configuracao de seguranca da aplicacao.
+ *
+ * <p>Define a cadeia de filtros do Spring Security com as seguintes caracteristicas:
+ * <ul>
+ *   <li>Autenticacao stateless via JWT transportado em cookie HttpOnly;</li>
+ *   <li>CSRF desabilitado — a protecao e coberta pelo atributo {@code SameSite=Strict}
+ *       do cookie, que impede browsers modernos de envia-lo em requisicoes cross-site;</li>
+ *   <li>Rotas publicas: {@code /}, {@code /login}, {@code /cadastro} e recursos estaticos;</li>
+ *   <li>Rotas de administracao ({@code /admin/**}) restritas a {@code ROLE_ADMIN};</li>
+ *   <li>Rotas de cliente ({@code /cliente/**}) restritas a {@code ROLE_USER}.</li>
+ * </ul>
+ * </p>
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -18,11 +32,23 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
+    /**
+     * Registra o encoder BCrypt como bean padrao para codificacao de senhas.
+     *
+     * @return instancia de {@link BCryptPasswordEncoder}
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configura e constroi a cadeia de filtros de seguranca HTTP.
+     *
+     * @param http construtor de configuracao de seguranca HTTP
+     * @return cadeia de filtros configurada
+     * @throws Exception se a configuracao do Spring Security falhar
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

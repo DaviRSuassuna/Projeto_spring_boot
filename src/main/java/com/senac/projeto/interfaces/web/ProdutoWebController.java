@@ -9,6 +9,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * Controlador web para gerenciamento de produtos na area administrativa.
+ *
+ * <p>Mapeado em {@code /admin/produtos}. Todas as rotas exigem a authority
+ * {@code ROLE_ADMIN}, conforme definido em {@link SecurityConfig}.</p>
+ */
 @Controller
 @RequestMapping("/admin/produtos")
 @RequiredArgsConstructor
@@ -17,6 +23,12 @@ public class ProdutoWebController {
     private final ProdutoService produtoService;
     private final CategoriaService categoriaService;
 
+    /**
+     * Lista todos os produtos e categorias disponíveis para o formulario de cadastro.
+     *
+     * @param model modelo Thymeleaf
+     * @return view {@code admin/produtos}
+     */
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("produtos", produtoService.listarTodos());
@@ -25,6 +37,16 @@ public class ProdutoWebController {
         return "admin/produtos";
     }
 
+    /**
+     * Adiciona um novo produto ao catalogo.
+     *
+     * @param nome        nome do produto
+     * @param preco       preco unitario
+     * @param quantidade  quantidade inicial em estoque
+     * @param categoriaId identificador da categoria (opcional)
+     * @param ra          atributos flash para mensagem de confirmacao apos redirecionamento
+     * @return redirecionamento para {@code /admin/produtos}
+     */
     @PostMapping("/adicionar")
     public String adicionar(
             @RequestParam String nome,
@@ -45,6 +67,20 @@ public class ProdutoWebController {
         return "redirect:/admin/produtos";
     }
 
+    /**
+     * Atualiza os dados de um produto existente.
+     *
+     * <p>A categoria e sempre sobrescrita: se {@code categoriaId} for nulo,
+     * a categoria do produto e removida.</p>
+     *
+     * @param id          identificador do produto
+     * @param nome        novo nome
+     * @param preco       novo preco unitario
+     * @param quantidade  nova quantidade em estoque
+     * @param categoriaId novo identificador de categoria (opcional)
+     * @param ra          atributos flash para mensagem de confirmacao apos redirecionamento
+     * @return redirecionamento para {@code /admin/produtos}
+     */
     @PostMapping("/atualizar")
     public String atualizar(
             @RequestParam Long id,
@@ -68,6 +104,13 @@ public class ProdutoWebController {
         return "redirect:/admin/produtos";
     }
 
+    /**
+     * Remove um produto pelo identificador.
+     *
+     * @param id identificador do produto a ser removido
+     * @param ra atributos flash para mensagem de confirmacao apos redirecionamento
+     * @return redirecionamento para {@code /admin/produtos}
+     */
     @PostMapping("/excluir")
     public String excluir(@RequestParam Long id, RedirectAttributes ra) {
         produtoService.excluir(id);

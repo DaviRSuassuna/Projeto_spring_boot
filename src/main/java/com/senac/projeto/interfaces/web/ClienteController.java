@@ -7,6 +7,7 @@ import com.senac.projeto.domain.model.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Controlador web para a area do cliente.
+ *
+ * <p>Mapeado em {@code /cliente}. Todas as rotas exigem a authority {@code ROLE_USER},
+ * conforme definido em {@link SecurityConfig}. O principal autenticado e sempre
+ * o e-mail do usuario, injetado via {@code @AuthenticationPrincipal}.</p>
+ */
 @Controller
 @RequestMapping("/cliente")
 @RequiredArgsConstructor
@@ -28,9 +36,16 @@ public class ClienteController {
     private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
 
-    @org.springframework.beans.factory.annotation.Value("${app.cookie.secure}")
+    @Value("${app.cookie.secure}")
     private boolean cookieSecure;
 
+    /**
+     * Exibe a pagina principal do cliente com os produtos agrupados por categoria.
+     *
+     * @param email e-mail do usuario autenticado (principal JWT)
+     * @param model modelo Thymeleaf
+     * @return view {@code cliente/index}
+     */
     @GetMapping
     public String index(@AuthenticationPrincipal String email, Model model) {
         List<Produto> produtos = produtoService.listarTodos();
@@ -47,6 +62,19 @@ public class ClienteController {
         return "cliente/index";
     }
 
+    /**
+     * Processa a confirmacao de um pedido enviado pelo formulario do cliente.
+     *
+     * <p>Os itens sao identificados pelos parametros de forma {@code qtd_<produtoId>}.
+     * Parametros com quantidade zero ou invalida sao ignorados. O total e calculado
+     * pelo controller e o debito de estoque e realizado atomicamente pelo servico.</p>
+     *
+     * @param email        e-mail do usuario autenticado (principal JWT)
+     * @param params       todos os parametros do formulario, incluindo os prefixados com {@code qtd_}
+     * @param modoPagamento nome da constante de {@link ModoPagamento}
+     * @param ra           atributos flash para mensagem de resultado apos redirecionamento
+     * @return redirecionamento para {@code /cliente}
+     */
     @PostMapping("/pedido")
     public String confirmarPedido(
             @AuthenticationPrincipal String email,
@@ -107,6 +135,18 @@ public class ClienteController {
         return "redirect:/cliente";
     }
 
+    /**
+     * Desativa a conta do usuario autenticado apos confirmacao de senha.
+     *
+     * <p>Apos a desativacao, o cookie JWT e invalidado (maxAge=0) e o usuario e
+     * redirecionado para a pagina de login com o parametro {@code contaDesativada}.</p>
+     *
+     * @param email    e-mail do usuario autenticado (principal JWT)
+     * @param senha    senha atual para confirmacao da operacao
+     * @param response resposta HTTP, usada para limpar o cookie JWT
+     * @param ra       atributos flash para mensagem de erro em caso de senha incorreta
+     * @return redirecionamento para {@code /login?contaDesativada} ou para {@code /cliente} com erro
+     */
     @PostMapping("/desativar-conta")
     public String desativarConta(
             @AuthenticationPrincipal String email,

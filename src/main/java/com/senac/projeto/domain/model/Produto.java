@@ -5,6 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Entidade de dominio que representa um produto disponivel no cardapio.
+ *
+ * <p>Mapeada para a tabela {@code produto}. O campo {@code quantidade} representa
+ * o estoque disponivel e e decrementado a cada pedido criado.</p>
+ */
 @Entity
 @Table(name = "produto")
 @Data
@@ -21,6 +27,7 @@ public class Produto {
     @Column(nullable = false)
     private double preco;
 
+    /** Quantidade disponivel em estoque. */
     @Column(nullable = false)
     private int quantidade;
 

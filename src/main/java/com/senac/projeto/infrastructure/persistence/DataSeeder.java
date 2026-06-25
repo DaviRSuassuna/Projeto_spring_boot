@@ -15,6 +15,13 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Populador inicial do banco de dados, executado na inicializacao da aplicacao.
+ *
+ * <p>Cria usuarios, categorias e produtos de exemplo apenas quando o banco estiver
+ * vazio (nenhum usuario cadastrado). Em execucoes subsequentes a carga e ignorada,
+ * preservando os dados ja existentes.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
@@ -30,6 +37,11 @@ public class DataSeeder implements CommandLineRunner {
     @Value("${app.admin.senha}")
     private String adminSenha;
 
+    /**
+     * Executa a carga inicial de dados se o banco estiver vazio.
+     *
+     * @param args argumentos de linha de comando (ignorados)
+     */
     @Override
     public void run(String... args) {
         if (usuarioRepository.count() > 0) return;
