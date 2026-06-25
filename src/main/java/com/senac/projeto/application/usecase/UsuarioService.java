@@ -42,7 +42,30 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public void excluir(Long id) {
-        usuarioRepository.deleteById(id);
+    public static final String ADMIN_PRINCIPAL = "admin@lanchonete.com";
+
+    public void desativar(Long id) {
+        usuarioRepository.findById(id).ifPresent(u -> {
+            if (ADMIN_PRINCIPAL.equals(u.getEmail())) return;
+            u.setAtivo(false);
+            u.setAtualizadoEm(LocalDateTime.now());
+            usuarioRepository.save(u);
+        });
+    }
+
+    public void ativar(Long id) {
+        usuarioRepository.findById(id).ifPresent(u -> {
+            u.setAtivo(true);
+            u.setAtualizadoEm(LocalDateTime.now());
+            usuarioRepository.save(u);
+        });
+    }
+
+    public boolean excluir(Long id) {
+        return usuarioRepository.findById(id).map(u -> {
+            if (ADMIN_PRINCIPAL.equals(u.getEmail())) return false;
+            usuarioRepository.delete(u);
+            return true;
+        }).orElse(false);
     }
 }

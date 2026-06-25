@@ -4,9 +4,11 @@ import com.senac.projeto.application.usecase.PedidoService;
 import com.senac.projeto.application.usecase.ProdutoService;
 import com.senac.projeto.application.usecase.UsuarioService;
 import com.senac.projeto.domain.model.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +25,10 @@ public class ClienteController {
     private final ProdutoService produtoService;
     private final PedidoService pedidoService;
     private final UsuarioService usuarioService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public String index(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public String index(@AuthenticationPrincipal String email, Model model) {
         List<Produto> produtos = produtoService.listarTodos();
 
         Map<String, List<Produto>> porCategoria = new LinkedHashMap<>();
@@ -36,18 +39,18 @@ public class ClienteController {
 
         model.addAttribute("produtosPorCategoria", porCategoria);
         model.addAttribute("modosPagamento", ModoPagamento.values());
-        model.addAttribute("nomeUsuario", userDetails.getUsername());
+        model.addAttribute("nomeUsuario", email);
         return "cliente/index";
     }
 
     @PostMapping("/pedido")
     public String confirmarPedido(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal String email,
             @RequestParam Map<String, String> params,
             @RequestParam String modoPagamento,
             RedirectAttributes ra) {
 
-        Usuario usuario = usuarioService.buscarPorEmail(userDetails.getUsername())
+        Usuario usuario = usuarioService.buscarPorEmail(email)
                 .orElseThrow();
 
         List<ItemPedido> itens = new ArrayList<>();
@@ -92,5 +95,29 @@ public class ClienteController {
         }
 
         return "redirect:/cliente";
+    }
+
+    @PostMapping("/desativar-conta")
+    public String desativarConta(
+            @AuthenticationPrincipal String email,
+            @RequestParam String senha,
+            HttpServletResponse response,
+            RedirectAttributes ra) {
+
+        Usuario usuario = usuarioService.buscarPorEmail(email).orElseThrow();
+
+        if (!passwordEncoder.matches(senha, usuario.getSenha())) {
+            ra.addFlashAttribute("erro", "Senha incorreta. Conta não foi desativada.");
+            return "redirect:/cliente";
+        }
+
+        usuarioService.desativar(usuario.getId());
+
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        return "redirect:/login?contaDesativada";
     }
 }

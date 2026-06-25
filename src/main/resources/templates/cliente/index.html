@@ -11,8 +11,8 @@
     <span class="header-titulo">🍔 Lanchonete</span>
     <div class="header-right">
         <span class="header-usuario" th:text="'Olá, ' + ${nomeUsuario}"></span>
+        <button type="button" onclick="abrirDesativarConta()" class="header-sair" style="background:#e53935;">Desativar Conta</button>
         <form method="post" th:action="@{/sair}" style="display:inline;">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit" class="header-sair">Sair</button>
         </form>
     </div>
@@ -66,7 +66,6 @@
         </div>
 
         <form id="form-pedido" method="post" th:action="@{/cliente/pedido}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" id="modo-pagamento-input" name="modoPagamento">
             <div id="itens-form"></div>
             <button type="button" onclick="confirmarPedido()" class="botao" style="margin-bottom: 6px;">
@@ -78,6 +77,23 @@
             Limpar
         </button>
     </aside>
+</div>
+
+<div id="modal-desativar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:10px; padding:30px; width:360px; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <div style="font-size:18px; font-weight:bold; margin-bottom:8px; color:#c62828;">Desativar Conta</div>
+        <p style="font-size:14px; color:#555; margin-bottom:16px;">Esta ação irá desativar sua conta. Para confirmar, digite sua senha atual.</p>
+        <form method="post" th:action="@{/cliente/desativar-conta}">
+            <div class="campo-grupo">
+                <label>Senha</label>
+                <input name="senha" type="password" class="campo" placeholder="••••••" required>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:16px;">
+                <button type="submit" class="botao-excluir" style="flex:1; height:40px;">Confirmar</button>
+                <button type="button" onclick="fecharDesativarConta()" class="botao-secundario" style="flex:1;">Cancelar</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -150,6 +166,13 @@
     function limparCarrinho() {
         for (const key in carrinho) delete carrinho[key];
         renderCarrinho();
+    }
+
+    function abrirDesativarConta() {
+        document.getElementById('modal-desativar').style.display = 'flex';
+    }
+    function fecharDesativarConta() {
+        document.getElementById('modal-desativar').style.display = 'none';
     }
 
     function confirmarPedido() {

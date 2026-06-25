@@ -63,10 +63,28 @@ public class UsuarioWebController {
         return "redirect:/admin/usuarios";
     }
 
+    @PostMapping("/desativar")
+    public String desativar(@RequestParam Long id, RedirectAttributes ra) {
+        usuarioService.desativar(id);
+        ra.addFlashAttribute("sucesso", "Conta do usuário desativada.");
+        return "redirect:/admin/usuarios";
+    }
+
+    @PostMapping("/ativar")
+    public String ativar(@RequestParam Long id, RedirectAttributes ra) {
+        usuarioService.ativar(id);
+        ra.addFlashAttribute("sucesso", "Conta do usuário reativada.");
+        return "redirect:/admin/usuarios";
+    }
+
     @PostMapping("/excluir")
     public String excluir(@RequestParam Long id, RedirectAttributes ra) {
-        usuarioService.excluir(id);
-        ra.addFlashAttribute("sucesso", "Usuário excluído com sucesso.");
+        boolean excluido = usuarioService.excluir(id);
+        if (excluido) {
+            ra.addFlashAttribute("sucesso", "Usuário excluído permanentemente.");
+        } else {
+            ra.addFlashAttribute("erro", "Este usuário não pode ser excluído.");
+        }
         return "redirect:/admin/usuarios";
     }
 }

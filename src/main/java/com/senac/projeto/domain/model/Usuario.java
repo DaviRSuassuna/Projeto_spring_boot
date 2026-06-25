@@ -27,6 +27,9 @@ public class Usuario {
     @Column(nullable = false)
     private boolean admin = false;
 
+    @Column(nullable = false)
+    private boolean ativo = true;
+
     @Column(name = "atualizado_em", nullable = false)
     private LocalDateTime atualizadoEm = LocalDateTime.now();
 }
