@@ -3,8 +3,10 @@ package com.senac.projeto.application.usecase;
 import com.senac.projeto.domain.model.Usuario;
 import com.senac.projeto.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,9 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.admin.email}")
+    private String adminEmail;
 
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
@@ -42,11 +47,9 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public static final String ADMIN_PRINCIPAL = "admin@lanchonete.com";
-
     public void desativar(Long id) {
         usuarioRepository.findById(id).ifPresent(u -> {
-            if (ADMIN_PRINCIPAL.equals(u.getEmail())) return;
+            if (adminEmail.equals(u.getEmail())) return;
             u.setAtivo(false);
             u.setAtualizadoEm(LocalDateTime.now());
             usuarioRepository.save(u);
@@ -63,7 +66,7 @@ public class UsuarioService {
 
     public boolean excluir(Long id) {
         return usuarioRepository.findById(id).map(u -> {
-            if (ADMIN_PRINCIPAL.equals(u.getEmail())) return false;
+            if (adminEmail.equals(u.getEmail())) return false;
             usuarioRepository.delete(u);
             return true;
         }).orElse(false);

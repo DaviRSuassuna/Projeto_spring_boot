@@ -2,6 +2,8 @@
 
 Aplicação web de lanchonete desenvolvida com **Spring Boot**, **Thymeleaf**, **Spring Security** e autenticação via **JWT**, organizada seguindo os princípios da **Arquitetura Limpa (Clean Architecture)** e **Arquitetura de Cebola (Onion Architecture)**.
 
+> Projeto acadêmico — configurado para rodar localmente via HTTP sem configurações extras.
+
 ## Tecnologias
 
 | Tecnologia | Versão |
@@ -9,8 +11,9 @@ Aplicação web de lanchonete desenvolvida com **Spring Boot**, **Thymeleaf**, *
 | Java | 25 |
 | Spring Boot | 4.0.6 |
 | Spring Security | (via Spring Boot) |
-| Thymeleaf | (via Spring Boot) |
+| Thymeleaf + thymeleaf-extras-springsecurity6 | (via Spring Boot) |
 | Spring Data JPA / Hibernate | (via Spring Boot) |
+| Spring Boot Validation | (via Spring Boot) |
 | MySQL | 8.4 |
 | Lombok | — |
 | Maven | (wrapper incluso) |
@@ -88,8 +91,6 @@ Além disso, o banco é populado com categorias e produtos de exemplo (lanches, 
 
 ## Parando a aplicação
 
-Para parar o container do banco:
-
 ```bash
 docker compose down
 ```
@@ -104,27 +105,44 @@ docker compose down -v
 
 ## Autenticação
 
-A autenticação é feita via **JWT (JSON Web Token)** armazenado em um cookie `HttpOnly`.
+A autenticação é feita via **JWT (JSON Web Token)** armazenado em cookie seguro.
 
 ### Fluxo de login
 
-1. Usuário envia e-mail e senha pelo formulário de login (`POST /login`)
-2. O `AuthController` verifica as credenciais no banco de dados
-3. Se válidas, um token JWT é gerado com o e-mail e a role do usuário (`ROLE_ADMIN` ou `ROLE_USER`)
-4. O token é salvo em um **cookie HttpOnly** chamado `jwt` (válido por 24 horas)
-5. Em cada requisição seguinte, o `JwtAuthFilter` lê o cookie, valida o token e autentica o usuário automaticamente
-6. No logout (`/sair`), o cookie é deletado e o usuário é redirecionado para `/login`
+1. Usuário envia e-mail e senha pelo formulário (`POST /login`)
+2. O `LoginRateLimiter` verifica se o IP está bloqueado por excesso de tentativas (máx. 5 em 10 min)
+3. O `AuthController` valida as credenciais no banco de dados
+4. Se válidas, um token JWT é gerado com e-mail e role (`ROLE_ADMIN` ou `ROLE_USER`)
+5. O token é salvo em um cookie `HttpOnly` + `SameSite=Strict`, válido por 24h
+6. Em cada requisição o `JwtAuthFilter` lê o cookie, valida o token e autentica o usuário
+7. No logout (`/sair`), o cookie é expirado e o usuário é redirecionado para `/login`
 
-### Arquivos envolvidos
+### Proteções implementadas
+
+| Proteção | Implementação |
+|---|---|
+| Senhas com hash | BCrypt |
+| Cookie HttpOnly | JavaScript não consegue ler o token |
+| Cookie SameSite=Strict | Previne envio cross-site |
+| CSRF token | `CookieCsrfTokenRepository` — Thymeleaf injeta automaticamente via `th:action` |
+| Rate limiting no login | 5 tentativas por IP / 10 minutos (`LoginRateLimiter`) |
+| Validação de senha | Mínimo 8 caracteres |
+| Chave JWT via propriedade | Configurável em `application.properties` ou via env var `JWT_SECRET` |
+| Admin protegido | Não pode ser excluído nem desativado |
+
+### Configuração `app.cookie.secure`
+
+O `application.properties` tem `app.cookie.secure=false`, o que permite rodar em **HTTP local** sem problemas. Se um dia o projeto for para HTTPS, basta mudar para `true` (ou definir a env var).
+
+### Arquivos de segurança
 
 | Arquivo | Responsabilidade |
 |---|---|
 | `infrastructure/config/JwtUtil.java` | Gera e valida tokens JWT |
 | `infrastructure/config/JwtAuthFilter.java` | Intercepta requisições e autentica via cookie |
-| `infrastructure/config/SecurityConfig.java` | Define regras de acesso e registra o filtro JWT |
-| `interfaces/web/AuthController.java` | Processa login/cadastro e emite o cookie |
-
-> O cookie é `HttpOnly` — não pode ser lido por JavaScript, o que protege contra ataques XSS.
+| `infrastructure/config/SecurityConfig.java` | Regras de acesso, CSRF, filtro JWT |
+| `infrastructure/security/LoginRateLimiter.java` | Rate limiting em memória por IP |
+| `interfaces/web/AuthController.java` | Login/cadastro com emissão de cookie |
 
 ---
 
@@ -160,7 +178,8 @@ src/main/java/com/senac/projeto/
 │
 ├── infrastructure/
 │   ├── persistence/     # DataSeeder (carga inicial de dados)
-│   └── config/          # SecurityConfig, JwtUtil, JwtAuthFilter (autenticação JWT)
+│   ├── security/        # LoginRateLimiter (rate limiting por IP)
+│   └── config/          # SecurityConfig, JwtUtil, JwtAuthFilter
 │
 └── interfaces/
     ├── rest/            # HomeController

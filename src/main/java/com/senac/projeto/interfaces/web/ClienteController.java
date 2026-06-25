@@ -4,8 +4,9 @@ import com.senac.projeto.application.usecase.PedidoService;
 import com.senac.projeto.application.usecase.ProdutoService;
 import com.senac.projeto.application.usecase.UsuarioService;
 import com.senac.projeto.domain.model.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,9 @@ public class ClienteController {
     private final PedidoService pedidoService;
     private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
+
+    @org.springframework.beans.factory.annotation.Value("${app.cookie.secure}")
+    private boolean cookieSecure;
 
     @GetMapping
     public String index(@AuthenticationPrincipal String email, Model model) {
@@ -58,10 +62,16 @@ public class ClienteController {
 
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (!entry.getKey().startsWith("qtd_")) continue;
-            int quantidade = Integer.parseInt(entry.getValue());
-            if (quantidade <= 0) continue;
 
-            Long produtoId = Long.parseLong(entry.getKey().substring(4));
+            int quantidade;
+            Long produtoId;
+            try {
+                quantidade = Integer.parseInt(entry.getValue());
+                produtoId = Long.parseLong(entry.getKey().substring(4));
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (quantidade <= 0) continue;
             Produto produto = produtoService.buscarPorId(produtoId).orElse(null);
             if (produto == null) continue;
 
@@ -113,10 +123,14 @@ public class ClienteController {
 
         usuarioService.desativar(usuario.getId());
 
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return "redirect:/login?contaDesativada";
     }

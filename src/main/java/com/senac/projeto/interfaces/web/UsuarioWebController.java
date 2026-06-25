@@ -29,6 +29,11 @@ public class UsuarioWebController {
             @RequestParam(defaultValue = "false") boolean admin,
             RedirectAttributes ra) {
 
+        if (senha.length() < 8) {
+            ra.addFlashAttribute("erro", "A senha deve ter pelo menos 8 caracteres.");
+            return "redirect:/admin/usuarios";
+        }
+
         if (usuarioService.buscarPorEmail(email).isPresent()) {
             ra.addFlashAttribute("erro", "E-mail já cadastrado.");
             return "redirect:/admin/usuarios";
@@ -52,6 +57,11 @@ public class UsuarioWebController {
             @RequestParam(required = false) String senha,
             @RequestParam(defaultValue = "false") boolean admin,
             RedirectAttributes ra) {
+
+        if (senha != null && !senha.isBlank() && senha.length() < 8) {
+            ra.addFlashAttribute("erro", "A nova senha deve ter pelo menos 8 caracteres.");
+            return "redirect:/admin/usuarios";
+        }
 
         usuarioService.buscarPorId(id).ifPresent(u -> {
             u.setNome(nome);

@@ -3,6 +3,7 @@ package com.senac.projeto.infrastructure.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -11,17 +12,21 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET = "lanchonete-senac-chave-secreta-muito-segura-2024";
-    private static final long EXPIRATION_MS = 86400000; // 24 horas
+    private final SecretKey key;
+    private final long expirationMs;
 
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    public JwtUtil(@Value("${jwt.secret}") String secret,
+                   @Value("${jwt.expiration-ms}") long expirationMs) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.expirationMs = expirationMs;
+    }
 
     public String gerarToken(String email, String role) {
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
     }

@@ -7,9 +7,11 @@ import com.senac.projeto.domain.repository.CategoriaRepository;
 import com.senac.projeto.domain.repository.ProdutoRepository;
 import com.senac.projeto.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,14 +24,20 @@ public class DataSeeder implements CommandLineRunner {
     private final ProdutoRepository produtoRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.admin.email}")
+    private String adminEmail;
+
+    @Value("${app.admin.senha}")
+    private String adminSenha;
+
     @Override
     public void run(String... args) {
         if (usuarioRepository.count() > 0) return;
 
         Usuario admin = new Usuario();
         admin.setNome("Administrador");
-        admin.setEmail("admin@lanchonete.com");
-        admin.setSenha(passwordEncoder.encode("admin123"));
+        admin.setEmail(adminEmail);
+        admin.setSenha(passwordEncoder.encode(adminSenha));
         admin.setAdmin(true);
         admin.setAtualizadoEm(LocalDateTime.now());
         usuarioRepository.save(admin);

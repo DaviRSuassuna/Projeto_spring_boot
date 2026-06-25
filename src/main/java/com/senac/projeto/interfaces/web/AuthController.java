@@ -3,9 +3,12 @@ package com.senac.projeto.interfaces.web;
 import com.senac.projeto.application.usecase.UsuarioService;
 import com.senac.projeto.domain.model.Usuario;
 import com.senac.projeto.infrastructure.config.JwtUtil;
-import jakarta.servlet.http.Cookie;
+import com.senac.projeto.infrastructure.security.LoginRateLimiter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +23,10 @@ public class AuthController {
     private final UsuarioService usuarioService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final LoginRateLimiter rateLimiter;
+
+    @org.springframework.beans.factory.annotation.Value("${app.cookie.secure}")
+    private boolean cookieSecure;
 
     @GetMapping("/login")
     public String login(
@@ -35,12 +42,21 @@ public class AuthController {
     public String processarLogin(
             @RequestParam String email,
             @RequestParam String senha,
+            HttpServletRequest request,
             HttpServletResponse response,
             Model model) {
+
+        String ip = obterIp(request);
+
+        if (rateLimiter.estaBloqueado(ip)) {
+            model.addAttribute("erro", "Muitas tentativas. Aguarde alguns minutos e tente novamente.");
+            return "login";
+        }
 
         var usuarioOpt = usuarioService.buscarPorEmail(email);
 
         if (usuarioOpt.isEmpty() || !passwordEncoder.matches(senha, usuarioOpt.get().getSenha())) {
+            rateLimiter.registrarFalha(ip);
             model.addAttribute("erro", "Email ou senha incorretos.");
             return "login";
         }
@@ -50,15 +66,20 @@ public class AuthController {
             return "login";
         }
 
+        rateLimiter.resetar(ip);
+
         Usuario usuario = usuarioOpt.get();
         String role = usuario.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
         String token = jwtUtil.gerarToken(usuario.getEmail(), role);
 
-        Cookie cookie = new Cookie("jwt", token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(86400); // 24 horas
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(86400)
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return usuario.isAdmin() ? "redirect:/admin/produtos" : "redirect:/cliente";
     }
@@ -75,6 +96,11 @@ public class AuthController {
             @RequestParam String senha,
             @RequestParam String confirmarSenha,
             Model model) {
+
+        if (senha.length() < 8) {
+            model.addAttribute("erro", "A senha deve ter pelo menos 8 caracteres.");
+            return "cadastro";
+        }
 
         if (!senha.equals(confirmarSenha)) {
             model.addAttribute("erro", "As senhas não coincidem.");
@@ -95,5 +121,13 @@ public class AuthController {
 
         model.addAttribute("sucesso", "Cadastro realizado! Faça login.");
         return "cadastro";
+    }
+
+    private String obterIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

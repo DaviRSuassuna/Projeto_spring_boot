@@ -26,6 +26,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // CSRF desabilitado: proteção já coberta pelo SameSite=Strict no cookie JWT,
+            // que impede browsers modernos de enviar o cookie em requisições cross-site.
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
