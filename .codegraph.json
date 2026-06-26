@@ -1,13 +1,12 @@
 {
   "meta": {
-    "generated_at": "2026-06-10T00:00:00Z",
+    "generated_at": "2026-06-25T22:45:00Z",
+    "last_indexed_commit": "e8df515",
     "project_root": "/home/davi/Arquivos/Senac/Web/projeto",
     "languages": ["java"],
-    "total_files": 2,
-    "total_lines": 27,
-    "skipped_files": [
-      {"path": "src/test/java/com/senac/projeto/ProjetoApplicationTests.java", "reason": "test file"}
-    ],
+    "total_files": 20,
+    "total_lines": 1986,
+    "skipped_files": [],
     "warnings": [],
     "version": "1.0"
   },
@@ -15,35 +14,442 @@
     {
       "path": "src/main/java/com/senac/projeto/ProjetoApplication.java",
       "language": "java",
-      "size_lines": 13,
-      "exports": ["ProjetoApplication"],
-      "imports": [],
-      "calls": [],
+      "size_lines": 60,
+      "exports": ["ProjetoApplication", "inicializarAdmin"],
+      "imports": ["src/main/java/com/senac/projeto/application/usecase/UsuarioService.java"],
+      "calls": ["src/main/java/com/senac/projeto/application/usecase/UsuarioService.java"],
       "classes": ["ProjetoApplication"],
-      "functions": ["main"],
-      "description": "Spring Boot application entry point"
+      "functions": ["main", "inicializarAdmin"],
+      "description": "Spring Boot entry point; bootstraps app and ensures admin user exists"
     },
     {
-      "path": "src/main/java/com/senac/projeto/HomeController.java",
+      "path": "src/main/java/com/senac/projeto/domain/model/Usuario.java",
       "language": "java",
-      "size_lines": 14,
+      "size_lines": 45,
+      "exports": ["Usuario"],
+      "imports": [],
+      "calls": [],
+      "classes": ["Usuario"],
+      "functions": [],
+      "description": "Domain entity for system users with auth fields (email, senha, admin, ativo)"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/model/Produto.java",
+      "language": "java",
+      "size_lines": 42,
+      "exports": ["Produto"],
+      "imports": ["src/main/java/com/senac/projeto/domain/model/Categoria.java"],
+      "calls": [],
+      "classes": ["Produto"],
+      "functions": [],
+      "description": "Domain entity for menu products with price and stock quantity"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/model/Categoria.java",
+      "language": "java",
+      "size_lines": 40,
+      "exports": ["Categoria"],
+      "imports": [],
+      "calls": [],
+      "classes": ["Categoria"],
+      "functions": [],
+      "description": "Domain entity for product categories"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/model/Pedido.java",
+      "language": "java",
+      "size_lines": 45,
+      "exports": ["Pedido"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Usuario.java",
+        "src/main/java/com/senac/projeto/domain/model/ItemPedido.java",
+        "src/main/java/com/senac/projeto/domain/model/ModoPagamento.java"
+      ],
+      "calls": [],
+      "classes": ["Pedido"],
+      "functions": [],
+      "description": "Domain entity for orders with items, total, and payment mode"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/model/ItemPedido.java",
+      "language": "java",
+      "size_lines": 40,
+      "exports": ["ItemPedido"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Pedido.java",
+        "src/main/java/com/senac/projeto/domain/model/Produto.java"
+      ],
+      "calls": [],
+      "classes": ["ItemPedido"],
+      "functions": [],
+      "description": "Domain entity for a single line item within an order"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/model/ModoPagamento.java",
+      "language": "java",
+      "size_lines": 28,
+      "exports": ["ModoPagamento"],
+      "imports": [],
+      "calls": [],
+      "classes": ["ModoPagamento"],
+      "functions": [],
+      "description": "Enum for accepted payment modes (DINHEIRO, PIX, cartoes)"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java",
+      "language": "java",
+      "size_lines": 18,
+      "exports": ["UsuarioRepository"],
+      "imports": ["src/main/java/com/senac/projeto/domain/model/Usuario.java"],
+      "calls": [],
+      "classes": ["UsuarioRepository"],
+      "functions": ["findByEmail"],
+      "description": "Spring Data JPA repository for Usuario; adds findByEmail query"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java",
+      "language": "java",
+      "size_lines": 20,
+      "exports": ["ProdutoRepository"],
+      "imports": ["src/main/java/com/senac/projeto/domain/model/Produto.java"],
+      "calls": [],
+      "classes": ["ProdutoRepository"],
+      "functions": ["findByCategoriaId"],
+      "description": "Spring Data JPA repository for Produto; adds findByCategoriaId query"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java",
+      "language": "java",
+      "size_lines": 10,
+      "exports": ["CategoriaRepository"],
+      "imports": ["src/main/java/com/senac/projeto/domain/model/Categoria.java"],
+      "calls": [],
+      "classes": ["CategoriaRepository"],
+      "functions": [],
+      "description": "Spring Data JPA repository for Categoria (standard CRUD)"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/domain/repository/PedidoRepository.java",
+      "language": "java",
+      "size_lines": 18,
+      "exports": ["PedidoRepository"],
+      "imports": ["src/main/java/com/senac/projeto/domain/model/Pedido.java"],
+      "calls": [],
+      "classes": ["PedidoRepository"],
+      "functions": ["findByUsuarioId"],
+      "description": "Spring Data JPA repository for Pedido; adds findByUsuarioId query"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java",
+      "language": "java",
+      "size_lines": 130,
+      "exports": ["UsuarioService"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Usuario.java",
+        "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java"
+      ],
+      "calls": ["src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java"],
+      "classes": ["UsuarioService"],
+      "functions": ["listarTodos", "buscarPorId", "buscarPorEmail", "adicionar", "atualizar", "desativar", "ativar", "excluir"],
+      "description": "Application service for user CRUD; protects admin from deactivation/deletion"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java",
+      "language": "java",
+      "size_lines": 68,
+      "exports": ["ProdutoService"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Produto.java",
+        "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java"
+      ],
+      "calls": ["src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java"],
+      "classes": ["ProdutoService"],
+      "functions": ["listarTodos", "buscarPorId", "adicionar", "atualizar", "excluir"],
+      "description": "Application service for product CRUD with timestamp management"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java",
+      "language": "java",
+      "size_lines": 68,
+      "exports": ["CategoriaService"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Categoria.java",
+        "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java"
+      ],
+      "calls": ["src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java"],
+      "classes": ["CategoriaService"],
+      "functions": ["listarTodas", "buscarPorId", "adicionar", "atualizar", "excluir"],
+      "description": "Application service for category CRUD"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java",
+      "language": "java",
+      "size_lines": 76,
+      "exports": ["PedidoService"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Pedido.java",
+        "src/main/java/com/senac/projeto/domain/model/ItemPedido.java",
+        "src/main/java/com/senac/projeto/domain/model/Produto.java",
+        "src/main/java/com/senac/projeto/domain/repository/PedidoRepository.java",
+        "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java"
+      ],
+      "calls": [
+        "src/main/java/com/senac/projeto/domain/repository/PedidoRepository.java",
+        "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java"
+      ],
+      "classes": ["PedidoService"],
+      "functions": ["listarTodos", "buscarPorId", "criar", "excluir"],
+      "description": "Application service for order creation with transactional stock debit validation"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java",
+      "language": "java",
+      "size_lines": 90,
+      "exports": ["JwtUtil"],
+      "imports": [],
+      "calls": [],
+      "classes": ["JwtUtil"],
+      "functions": ["gerarToken", "extrairEmail", "extrairRole", "tokenValido"],
+      "description": "JWT token generation and validation using HMAC-SHA secret key"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/infrastructure/config/JwtAuthFilter.java",
+      "language": "java",
+      "size_lines": 68,
+      "exports": ["JwtAuthFilter"],
+      "imports": ["src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java"],
+      "calls": ["src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java"],
+      "classes": ["JwtAuthFilter"],
+      "functions": ["doFilterInternal"],
+      "description": "HTTP filter that extracts JWT from cookie and populates SecurityContext"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/infrastructure/config/SecurityConfig.java",
+      "language": "java",
+      "size_lines": 76,
+      "exports": ["SecurityConfig"],
+      "imports": ["src/main/java/com/senac/projeto/infrastructure/config/JwtAuthFilter.java"],
+      "calls": ["src/main/java/com/senac/projeto/infrastructure/config/JwtAuthFilter.java"],
+      "classes": ["SecurityConfig"],
+      "functions": ["passwordEncoder", "filterChain"],
+      "description": "Spring Security config: stateless JWT, route authorization, BCrypt"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/infrastructure/security/LoginRateLimiter.java",
+      "language": "java",
+      "size_lines": 80,
+      "exports": ["LoginRateLimiter"],
+      "imports": [],
+      "calls": [],
+      "classes": ["LoginRateLimiter"],
+      "functions": ["estaBloqueado", "registrarFalha", "resetar"],
+      "description": "In-memory IP-based rate limiter: blocks after 5 failures within 10 minutes"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java",
+      "language": "java",
+      "size_lines": 108,
+      "exports": ["DataSeeder"],
+      "imports": [
+        "src/main/java/com/senac/projeto/domain/model/Usuario.java",
+        "src/main/java/com/senac/projeto/domain/model/Categoria.java",
+        "src/main/java/com/senac/projeto/domain/model/Produto.java",
+        "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java",
+        "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java",
+        "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java"
+      ],
+      "calls": [
+        "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java",
+        "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java",
+        "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java"
+      ],
+      "classes": ["DataSeeder"],
+      "functions": ["run"],
+      "description": "CommandLineRunner that seeds admin, test users, categories and products on empty DB"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/AuthController.java",
+      "language": "java",
+      "size_lines": 190,
+      "exports": ["AuthController"],
+      "imports": [
+        "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java",
+        "src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java",
+        "src/main/java/com/senac/projeto/infrastructure/security/LoginRateLimiter.java"
+      ],
+      "calls": [
+        "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java",
+        "src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java",
+        "src/main/java/com/senac/projeto/infrastructure/security/LoginRateLimiter.java"
+      ],
+      "classes": ["AuthController"],
+      "functions": ["login", "processarLogin", "cadastroForm", "cadastro"],
+      "description": "Controller for login and registration; issues JWT cookie on success"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/ClienteController.java",
+      "language": "java",
+      "size_lines": 178,
+      "exports": ["ClienteController"],
+      "imports": [
+        "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java",
+        "src/main/java/com/senac/projeto/application/usecase/PedidoService.java",
+        "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java"
+      ],
+      "calls": [
+        "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java",
+        "src/main/java/com/senac/projeto/application/usecase/PedidoService.java",
+        "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java"
+      ],
+      "classes": ["ClienteController"],
+      "functions": ["index", "confirmarPedido", "desativarConta"],
+      "description": "Customer area: browse menu by category, place orders, deactivate account"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/ProdutoWebController.java",
+      "language": "java",
+      "size_lines": 120,
+      "exports": ["ProdutoWebController"],
+      "imports": [
+        "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java",
+        "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java"
+      ],
+      "calls": [
+        "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java",
+        "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java"
+      ],
+      "classes": ["ProdutoWebController"],
+      "functions": ["listar", "adicionar", "atualizar", "excluir"],
+      "description": "Admin controller for product CRUD at /admin/produtos"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/CategoriaWebController.java",
+      "language": "java",
+      "size_lines": 84,
+      "exports": ["CategoriaWebController"],
+      "imports": ["src/main/java/com/senac/projeto/application/usecase/CategoriaService.java"],
+      "calls": ["src/main/java/com/senac/projeto/application/usecase/CategoriaService.java"],
+      "classes": ["CategoriaWebController"],
+      "functions": ["listar", "adicionar", "atualizar", "excluir"],
+      "description": "Admin controller for category CRUD at /admin/categorias"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/PedidoWebController.java",
+      "language": "java",
+      "size_lines": 50,
+      "exports": ["PedidoWebController"],
+      "imports": ["src/main/java/com/senac/projeto/application/usecase/PedidoService.java"],
+      "calls": ["src/main/java/com/senac/projeto/application/usecase/PedidoService.java"],
+      "classes": ["PedidoWebController"],
+      "functions": ["listar", "excluir"],
+      "description": "Admin controller for order listing and deletion at /admin/pedidos"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/UsuarioWebController.java",
+      "language": "java",
+      "size_lines": 163,
+      "exports": ["UsuarioWebController"],
+      "imports": ["src/main/java/com/senac/projeto/application/usecase/UsuarioService.java"],
+      "calls": ["src/main/java/com/senac/projeto/application/usecase/UsuarioService.java"],
+      "classes": ["UsuarioWebController"],
+      "functions": ["listar", "adicionar", "atualizar", "desativar", "ativar", "excluir"],
+      "description": "Admin controller for user management at /admin/usuarios"
+    },
+    {
+      "path": "src/main/java/com/senac/projeto/interfaces/web/HomeController.java",
+      "language": "java",
+      "size_lines": 20,
       "exports": ["HomeController"],
       "imports": [],
       "calls": [],
       "classes": ["HomeController"],
       "functions": ["home"],
-      "description": "REST controller exposing GET / endpoint"
+      "description": "Redirects root / to /login"
     }
   ],
-  "edges": [],
+  "edges": [
+    {"from": "src/main/java/com/senac/projeto/ProjetoApplication.java", "to": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/model/Produto.java", "to": "src/main/java/com/senac/projeto/domain/model/Categoria.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/model/Pedido.java", "to": "src/main/java/com/senac/projeto/domain/model/Usuario.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/model/Pedido.java", "to": "src/main/java/com/senac/projeto/domain/model/ItemPedido.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/model/Pedido.java", "to": "src/main/java/com/senac/projeto/domain/model/ModoPagamento.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/model/ItemPedido.java", "to": "src/main/java/com/senac/projeto/domain/model/Pedido.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/model/ItemPedido.java", "to": "src/main/java/com/senac/projeto/domain/model/Produto.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java", "to": "src/main/java/com/senac/projeto/domain/model/Usuario.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java", "to": "src/main/java/com/senac/projeto/domain/model/Produto.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java", "to": "src/main/java/com/senac/projeto/domain/model/Categoria.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/domain/repository/PedidoRepository.java", "to": "src/main/java/com/senac/projeto/domain/model/Pedido.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "to": "src/main/java/com/senac/projeto/domain/model/Usuario.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "to": "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java", "to": "src/main/java/com/senac/projeto/domain/model/Produto.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java", "to": "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java", "to": "src/main/java/com/senac/projeto/domain/model/Categoria.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java", "to": "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "to": "src/main/java/com/senac/projeto/domain/model/Pedido.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "to": "src/main/java/com/senac/projeto/domain/model/ItemPedido.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "to": "src/main/java/com/senac/projeto/domain/model/Produto.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "to": "src/main/java/com/senac/projeto/domain/repository/PedidoRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "to": "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/config/JwtAuthFilter.java", "to": "src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/config/SecurityConfig.java", "to": "src/main/java/com/senac/projeto/infrastructure/config/JwtAuthFilter.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java", "to": "src/main/java/com/senac/projeto/domain/model/Usuario.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java", "to": "src/main/java/com/senac/projeto/domain/model/Categoria.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java", "to": "src/main/java/com/senac/projeto/domain/model/Produto.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java", "to": "src/main/java/com/senac/projeto/domain/repository/UsuarioRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java", "to": "src/main/java/com/senac/projeto/domain/repository/CategoriaRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/infrastructure/persistence/DataSeeder.java", "to": "src/main/java/com/senac/projeto/domain/repository/ProdutoRepository.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/AuthController.java", "to": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/AuthController.java", "to": "src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/AuthController.java", "to": "src/main/java/com/senac/projeto/infrastructure/security/LoginRateLimiter.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/ClienteController.java", "to": "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/ClienteController.java", "to": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/ClienteController.java", "to": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/ProdutoWebController.java", "to": "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/ProdutoWebController.java", "to": "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/CategoriaWebController.java", "to": "src/main/java/com/senac/projeto/application/usecase/CategoriaService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/PedidoWebController.java", "to": "src/main/java/com/senac/projeto/application/usecase/PedidoService.java", "type": "import"},
+    {"from": "src/main/java/com/senac/projeto/interfaces/web/UsuarioWebController.java", "to": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "type": "import"}
+  ],
   "summary": {
-    "entry_points": ["src/main/java/com/senac/projeto/ProjetoApplication.java"],
-    "hubs": [],
+    "entry_points": [
+      "src/main/java/com/senac/projeto/ProjetoApplication.java"
+    ],
+    "hubs": [
+      {"path": "src/main/java/com/senac/projeto/application/usecase/UsuarioService.java", "imported_by": 4},
+      {"path": "src/main/java/com/senac/projeto/domain/model/Produto.java", "imported_by": 4},
+      {"path": "src/main/java/com/senac/projeto/domain/model/Categoria.java", "imported_by": 3},
+      {"path": "src/main/java/com/senac/projeto/application/usecase/ProdutoService.java", "imported_by": 3},
+      {"path": "src/main/java/com/senac/projeto/infrastructure/config/JwtUtil.java", "imported_by": 2}
+    ],
     "clusters": {
-      "main": {
-        "dirs": ["src/main/java/com/senac/projeto"],
-        "files": 2,
-        "purpose": "Spring Boot REST API application"
+      "domain-model": {
+        "dirs": ["src/main/java/com/senac/projeto/domain/model"],
+        "files": 6,
+        "purpose": "Core domain entities: Usuario, Produto, Categoria, Pedido, ItemPedido, ModoPagamento"
+      },
+      "domain-repository": {
+        "dirs": ["src/main/java/com/senac/projeto/domain/repository"],
+        "files": 4,
+        "purpose": "Spring Data JPA repository interfaces for each domain entity"
+      },
+      "application": {
+        "dirs": ["src/main/java/com/senac/projeto/application/usecase"],
+        "files": 4,
+        "purpose": "Application services with business logic: CRUD, stock validation, user protection"
+      },
+      "infrastructure": {
+        "dirs": [
+          "src/main/java/com/senac/projeto/infrastructure/config",
+          "src/main/java/com/senac/projeto/infrastructure/persistence",
+          "src/main/java/com/senac/projeto/infrastructure/security"
+        ],
+        "files": 5,
+        "purpose": "JWT auth, Spring Security config, data seeder, login rate limiter"
+      },
+      "interfaces-web": {
+        "dirs": ["src/main/java/com/senac/projeto/interfaces/web"],
+        "files": 7,
+        "purpose": "Thymeleaf MVC controllers: auth, admin area, customer area"
       }
     }
   }
